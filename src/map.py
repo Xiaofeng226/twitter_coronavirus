@@ -1,27 +1,78 @@
+#!/usr/bin/env python3
+
+# command line args
 import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--input_path',required=True)
+parser.add_argument('--output_folder',default='outputs')
+args = parser.parse_args()
 
-parser = arg.parse.ArgumentParser()
-parser.add_argument('--filepath', help='path to the file')
-args = parser.parse.args()
-
-
-
-filepath = '/data/Twitter dataset/tweets-20230123.zip'
-
+# imports
+import os
 import zipfile
-from collections import Counter
+import datetime 
+import json
+from collections import Counter,defaultdict
 
-lang_counter = Counter()
+# load keywords
+hashtags = [
+    '#코로나바이러스',  # korean
+    '#コロナウイルス',  # japanese
+    '#冠状病毒',        # chinese
+    '#covid2019',
+    '#covid-2019',
+    '#covid19',
+    '#covid-19',
+    '#coronavirus',
+    '#corona',
+    '#virus',
+    '#flu',
+    '#sick',
+    '#cough',
+    '#sneeze',
+    '#hospital',
+    '#nurse',
+    '#doctor',
+    ]
 
+# initialize counters
+counter_lang = defaultdict(lambda: Counter())
 
+# open the zipfile
+with zipfile.ZipFile(args.input_path) as archive:
 
-with zipfile.ZipFile(file, 'r') as zip_ref:
-    for name in zip_ref.namelist():
-        with zip_ref.opne(name, 'r') as file:
-            for line in file:
-                datum = json.loads(lin)
-                lang = datum['data']['lang']
-                lang_counter[lang] += 1
-                print('lang=', lang)
-                lang_counter
+    # loop over every file within the zip file
+    for i,filename in enumerate(archive.namelist()):
+        print(datetime.datetime.now(),args.input_path,filename)
+
+        # open the inner file
+        with archive.open(filename) as f:
+
+            # loop over each line in the inner file
+            for line in f:
+
+                # load the tweet as a python dictionary
+                tweet = json.loads(line)
+
+                # convert text to lower case
+                text = tweet['text'].lower()
+
+                # search hashtags
+                for hashtag in hashtags:
+                    lang = tweet['lang']
+                    if hashtag in text:
+                        counter_lang[hashtag][lang] += 1
+                    counter_lang['_all'][lang] += 1
+
+# open the outputfile
+try:
+    os.makedirs(args.output_folder)
+except FileExistsError:
+    pass
+output_path_base = os.path.join(args.output_folder,os.path.basename(args.input_path))
+
+output_path_lang = output_path_base+'.lang'
+print('saving',output_path_lang)
+with open(output_path_lang,'w') as f:
+    f.write(json.dumps(counter_lang))
 
