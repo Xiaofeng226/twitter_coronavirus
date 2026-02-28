@@ -32,6 +32,6 @@ These bar charts display the distribution for the Korean hashtag `#코로나바�
 ![#코로나바이러스 by Language](reduced.lang코로나바이러스.png)
 
 ### 3. Hashtag Usage Over Time
-This time-series plot tracks the usage of `#coronavirus` vs. `#covid19` throughout the year 2020.
+This time-series plot tracks the usage of `#coronavirus` vs. `#covid19` throughout the year 2020. Initially it would have shown each day of the year, but there are 366 days in 2020, so it would have displayed so many dates, so I made it to just displaying the months and each day is still shown as a data point.
 
 ![Tweet Counts Over Time](hashtag_trends.png)
