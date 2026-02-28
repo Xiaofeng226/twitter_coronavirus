@@ -37,8 +37,8 @@ values = [item[1] for item in top10_sorted]
 
 plt.figure(figsize=(12, 6))
 plt.bar(keys, values)
-plt.xlabel('Keys')
-plt.ylabel('Counts')
+plt.xlabel('Language Keys')
+plt.ylabel('Number of Tweets')
 plt.title(f'{args.key} by {os.path.basename(args.input_path)}')
 plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
