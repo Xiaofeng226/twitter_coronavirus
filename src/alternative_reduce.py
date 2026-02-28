@@ -14,6 +14,7 @@ from collections import defaultdict
 import matplotlib
 matplotlib.rcParams['font.family'] = 'Baekmuk Dotum'
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 # month number -> abbreviated name
 MONTH_NAMES = {
@@ -23,42 +24,57 @@ MONTH_NAMES = {
 }
 
 # scan through all input files and construct dataset:
-# counts[hashtag][month] = total tweets
+# counts[hashtag][day] = total tweets, where day is "MM-DD"
 counts = defaultdict(lambda: defaultdict(int))
 
 for path in args.input_paths:
-    # extract month from filename e.g. "geoTwitter20-02-16.zip.lang" -> "02"
+    # extract month and day from filename e.g. "geoTwitter20-02-16.zip.lang" -> "02-16"
     basename = os.path.basename(path)
     parts = basename.split('-')
     if len(parts) >= 3:
         month = parts[1]
+        day = parts[2].split('.')[0]
+        day_label = month + '-' + day
     else:
-        month = 'unknown'
+        day_label = basename
 
     with open(path) as f:
         tmp = json.load(f)
 
     for hashtag in args.hashtags:
         if hashtag in tmp:
-            counts[hashtag][month] += sum(tmp[hashtag].values())
+            counts[hashtag][day_label] += sum(tmp[hashtag].values())
 
-# collect all months sorted chronologically
-all_months = sorted(set(
-    month for hashtag in args.hashtags for month in counts[hashtag]
+# collect all days sorted chronologically
+all_days = sorted(set(
+    day for hashtag in args.hashtags for day in counts[hashtag]
 ))
 
-month_labels = [MONTH_NAMES.get(m, m) for m in all_months]
+# build x-axis tick positions at the first day of each new month
+tick_positions = []
+tick_labels = []
+seen_months = set()
+for i, day in enumerate(all_days):
+    month = day.split('-')[0]
+    if month not in seen_months:
+        tick_positions.append(i)
+        tick_labels.append(MONTH_NAMES.get(month, month))
+        seen_months.add(month)
 
-# plot one line per hashtag
+# plot one line per hashtag using integer positions so ticks align cleanly
+fig, ax = plt.subplots(figsize=(14, 6))
+
 for hashtag in args.hashtags:
-    y_values = [counts[hashtag].get(month, 0) for month in all_months]
-    plt.plot(month_labels, y_values, marker='o', markersize=5, linewidth=2, label=hashtag)
+    y_values = [counts[hashtag].get(day, 0) for day in all_days]
+    ax.plot(range(len(all_days)), y_values, marker='o', markersize=3, linewidth=1.5, label=hashtag)
 
-plt.xlabel('Month')
-plt.ylabel('Number of Tweets')
-plt.title('Monthly Tweet Counts by Hashtag (2020)')
-plt.legend()
-plt.xticks(rotation=45, ha='right')
+ax.set_xticks(tick_positions)
+ax.set_xticklabels(tick_labels)
+ax.set_xlabel('Month')
+ax.set_ylabel('Number of Tweets')
+ax.set_title('Daily Tweet Counts by Hashtag (2020)')
+ax.legend()
 plt.tight_layout()
 plt.savefig('hashtag_trends.png')
 print('Plot saved to hashtag_trends.png')
+
