@@ -43,6 +43,8 @@ plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
 
 input_name = os.path.basename(args.input_path)
-output_path = f'{input_name}.png'
+key_used = key_clean = args.key.replace('#', '').replace('/', '_')
+output_path = f'{input_name}{key_used}.png'
 plt.savefig(output_path)
 print(f'saved to {output_path}')
+
