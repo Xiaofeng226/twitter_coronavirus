@@ -15,6 +15,9 @@ from collections import Counter,defaultdict
 
 import matplotlib
 import matplotlib.pyplot as plt
+
+plt.rcParams['font.family'] = 'Noto Sans CJK JP'
+
 # open the input path
 with open(args.input_path) as f:
     counts = json.load(f)
