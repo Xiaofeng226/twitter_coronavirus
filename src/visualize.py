@@ -16,7 +16,7 @@ from collections import Counter,defaultdict
 import matplotlib
 import matplotlib.pyplot as plt
 
-plt.rcParams['font.family'] = 'Noto Sans CJK JP'
+plt.rcParams['font.family'] = = ['Noto Sans CJK KR', 'Noto Sans CJK SC', 'WenQuanYi Zen Hei', 'WenQuanYi Micro Hei', 'UnDotum', 'Baekmuk Dotum', 'DejaVu Sans']
 
 # open the input path
 with open(args.input_path) as f:
