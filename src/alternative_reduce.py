@@ -3,28 +3,25 @@
 # command line args
 import argparse
 parser = argparse.ArgumentParser()
+parser.add_argument('--input_paths', nargs='+', required=True)
 parser.add_argument('--hashtags', nargs='+', required=True)
 args = parser.parse_args()
 
 # imports
 import os
 import json
-import glob
 from collections import defaultdict
 import matplotlib
 matplotlib.rcParams['font.family'] = 'Baekmuk Dotum'
 import matplotlib.pyplot as plt
 
-# scan through all files in the outputs folder
-# and construct a dataset: counts[hashtag][day] = total tweets
+# scan through all input files and construct dataset:
+# counts[hashtag][day] = total tweets
 counts = defaultdict(lambda: defaultdict(int))
 
-input_paths = sorted(glob.glob('outputs/*.json'))
-
-for path in input_paths:
-    # extract the day label from the filename, e.g. "geoTwitter20-02-16.zip.lang" -> "02-16"
+for path in args.input_paths:
+    # extract day label from filename e.g. "geoTwitter20-02-16.zip.lang" -> "02-16"
     basename = os.path.basename(path)
-    # files are named like geoTwitter20-MM-DD.zip.lang.json
     parts = basename.split('-')
     if len(parts) >= 3:
         month = parts[1]
